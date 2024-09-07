@@ -15,8 +15,18 @@ from selenium.common.exceptions import TimeoutException
 import time
 import google.generativeai as genai
 from google.api_core import exceptions, retry
-import os
+import os, sys
 import re
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class WebScraperCSVFormatterApp(ctk.CTk):
     def __init__(self):
@@ -24,12 +34,22 @@ class WebScraperCSVFormatterApp(ctk.CTk):
 
         self.title("Web Scraper, CSV Formatter, and Metadata Generator")
         self.geometry("800x850")  # Increased height to accommodate new checkbox
+        ctk.set_appearance_mode("light")
+        try:
+            ctk.set_default_color_theme(resource_path("color.json"))
+        except Exception as e:
+            print(f"Error loading color theme: {e}")
+            print("Falling back to default theme")
+        
+        icon_path = resource_path("icon.ico")
+        if os.path.exists(icon_path):
+            self.after(200, lambda: self.iconbitmap(icon_path))
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        api_key_var1 = ctk.StringVar(value="AIzaSyAM22h7ijy9fIwyC--dwoLP4j7Nwg0VkJc")
-        api_key_var2 = ctk.StringVar(value="AIzaSyAGMdxQCc8joq2MicuKEHi3spvJR1wSuqM")
-        api_key_var3 = ctk.StringVar(value="AIzaSyCw_aOrPVX7PODMVE1RXh8IVCIA3ERBKYY")
+        api_key_var1 = ctk.StringVar(value="")
+        api_key_var2 = ctk.StringVar(value="")
+        api_key_var3 = ctk.StringVar(value="")
 
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
